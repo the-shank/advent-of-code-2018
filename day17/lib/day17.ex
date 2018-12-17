@@ -49,7 +49,7 @@ defmodule Day17 do
 
   defp fill_horizontal state, {row, col}, direction, elem do
     pos = {row, col + direction}
-    case at_side(state, pos) do
+    case at_side(state, {row, col + direction}) do
       :outside ->
 	{:done, state}
       :free ->
@@ -58,7 +58,7 @@ defmodule Day17 do
 	  :blocked ->
 	    fill_horizontal state, pos, direction, elem
 	  _ ->
-	    fill_below state, pos
+	    fill_below state, {row - 1, col + direction}
 	end
       :blocked ->
 	{:blocked, state}
