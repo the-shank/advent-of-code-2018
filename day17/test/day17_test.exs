@@ -7,11 +7,11 @@ defmodule Day17Test do
   end
 
   test "part one, real data" do
-    #assert Day17.part1(input()) == :wrong
+    assert Day17.part1(input()) == :wrong
   end
 
   test "part two example" do
-    #assert Day17.part2(example1()) == 0
+    assert Day17.part2(example1()) == 0
   end
 
   test "part two real data" do
