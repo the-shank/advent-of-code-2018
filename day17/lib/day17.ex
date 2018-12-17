@@ -2,7 +2,80 @@ defmodule Day17 do
   def part1 lines do
     ranges = parse_input lines
     state = build_state ranges
+    {result, state} = fill_below(state, {0, 500})
     print_state state
+    IO.inspect result
+    count_water_areas state
+  end
+
+  defp count_water_areas state do
+    Enum.count(state.contents, fn {_, what} ->
+      what == :flowing || what == :settled
+    end)
+  end
+
+  defp fill_below state, {row, col} = pos do
+    below = {row + 1, col}
+    case at(state, below) do
+      :outside ->
+	{:done, state}
+      :blocked ->
+	:blocked
+      :free ->
+	state = fill state, pos, :flowing
+	case fill_below(state, pos) do
+	  :blocked ->
+	    case fill_horizontal(state, pos, -1, :flowing) do
+	      {:done, state} ->
+		fill_horizontal(state, pos, 1, :flowing)
+	      {:blocked, state} ->
+		case fill_horizontal(state, pos, 1, :flowing) do
+		  {:blocked, state} ->
+		    state = fill state, {row, col}, :settled;
+		    {:blocked, state} = fill_horizontal(state, pos, -1, :settled)
+		    {:blocked, state} = fill_horizontal(state, pos, 1, :settled)
+		    {:blocked, state}
+		  {:done, state} ->
+		    {:done, state}
+		end
+	    end
+	  {:done, state} ->
+	    {:done, state}
+	end
+    end
+  end
+
+  defp fill_horizontal state, {row, col}, direction, elem do
+    pos = {row, col + direction}
+    case at(state, pos) do
+      :outside ->
+	{:done, state}
+      :free ->
+	state = fill state, pos, elem
+	fill_horizontal state, pos, direction, elem
+      :blocked ->
+	{:blocked, state}
+    end
+  end
+
+  defp fill state, pos, elem do
+    contents = state.contents
+    contents = Map.put(contents, pos, elem)
+    Map.put(state, :contents, contents)
+  end
+
+  defp at state, {row, _} = pos do
+    contents = Map.fetch!(state, :contents)
+    case state.contents[pos] do
+      :clay -> :blocked
+      :settled -> :blocked
+      :flowing -> :free
+      nil ->
+	case row in state.row_range do
+	  true -> :free
+	  false -> :outside
+	end
+    end
   end
 
   defp build_state ranges do
@@ -21,7 +94,7 @@ defmodule Day17 do
       into: %{}
       do {{row, col}, :clay}
     end
-    %{bb: {row_range, col_range}, ranges: ranges, contents: map}
+    %{bb: {row_range, col_range}, row_range: row_range, ranges: ranges, contents: map}
   end
 
   defp parse_input lines do
@@ -49,6 +122,8 @@ defmodule Day17 do
 	case contents[pos] do
 	  nil -> ?.
 	  :clay -> ?\#
+	  :flowing -> ?|
+	  :settled -> ?\~
 	end
       end)
     end)
