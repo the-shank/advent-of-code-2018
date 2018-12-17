@@ -15,18 +15,12 @@ defmodule Day17 do
 	{(min(min_row0, min_row))..(max(max_row0, max_row)),
 	(min(min_col0, min_col))..(max(max_col0, max_col))}
       end)
-    map1 = for row <- row_range,
-      col <- col_range,
-      into: %{} do
-      {{row, col}, :sand}
-    end
-    map2 = for {rows, cols} <- ranges,
+    map = for {rows, cols} <- ranges,
       row <- rows,
       col <- cols,
       into: %{}
       do {{row, col}, :clay}
     end
-    map = Map.merge(map1, map2)
     %{bb: {row_range, col_range}, ranges: ranges, contents: map}
   end
 
@@ -53,11 +47,13 @@ defmodule Day17 do
       IO.puts Enum.map(col_range, fn col ->
 	pos = {row, col}
 	case contents[pos] do
-	  :sand -> ?.
+	  nil -> ?.
 	  :clay -> ?\#
 	end
       end)
     end)
+    IO.inspect map_size(contents)
+    IO.inspect state.bb
   end
 
 end
