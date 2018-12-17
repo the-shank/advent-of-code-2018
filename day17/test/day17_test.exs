@@ -7,7 +7,7 @@ defmodule Day17Test do
   end
 
   test "part one, real data" do
-    assert Day17.part1(input()) == :blurf
+    #assert Day17.part1(input()) == :wrong
   end
 
   test "part two example" do

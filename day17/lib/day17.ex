@@ -2,7 +2,10 @@ defmodule Day17 do
   def part1 lines do
     ranges = parse_input lines
     state = build_state ranges
-    {result, state} = fill_below(state, {0, 500})
+    min_row = Enum.min(state.row_range)
+    spring = {min_row - 1, 500}
+    {result, state} = fill_below(state, spring)
+    IO.inspect result
     print_state state
     count_water_areas state
   end
@@ -15,7 +18,7 @@ defmodule Day17 do
 
   defp fill_below state, {row, col} = pos do
     below = {row + 1, col}
-    case at(state, below) do
+    case at_below(state, below) do
       :outside ->
 	{:done, state}
       :blocked ->
@@ -30,9 +33,9 @@ defmodule Day17 do
 	      {:blocked, state} ->
 		case fill_horizontal(state, below, 1, :flowing) do
 		  {:blocked, state} ->
-		    state = fill state, {row, col}, :settled;
 		    {:blocked, state} = fill_horizontal(state, below, -1, :settled)
 		    {:blocked, state} = fill_horizontal(state, below, 1, :settled)
+		    state = fill state, below, :settled;
 		    {:blocked, state}
 		  {:done, state} ->
 		    {:done, state}
@@ -46,12 +49,12 @@ defmodule Day17 do
 
   defp fill_horizontal state, {row, col}, direction, elem do
     pos = {row, col + direction}
-    case at(state, pos) do
+    case at_side(state, pos) do
       :outside ->
 	{:done, state}
       :free ->
 	state = fill state, pos, elem
-	case at(state, {row + 1, col + direction}) do
+	case at_below(state, {row + 1, col + direction}) do
 	  :blocked ->
 	    fill_horizontal state, pos, direction, elem
 	  _ ->
@@ -68,11 +71,26 @@ defmodule Day17 do
     Map.put(state, :contents, contents)
   end
 
-  defp at state, {row, _} = pos do
-    contents = Map.fetch!(state, :contents)
-    case state.contents[pos] do
+  defp at_side state, pos do
+    case at_raw(state, pos) do
+      :clay -> :blocked
+      :settled -> :free
+      other -> other
+    end
+  end
+
+  defp at_below state, pos do
+    case at_raw(state, pos) do
       :clay -> :blocked
       :settled -> :blocked
+      other -> other
+    end
+  end
+
+  defp at_raw state, {row, _} = pos do
+    case state.contents[pos] do
+      :clay -> :clay
+      :settled -> :settled
       :flowing -> :free
       nil ->
 	case row in state.row_range do
@@ -131,7 +149,6 @@ defmodule Day17 do
 	end
       end)
     end)
-    IO.inspect map_size(contents)
     IO.inspect state.bb
   end
 
