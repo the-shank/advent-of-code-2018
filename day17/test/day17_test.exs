@@ -3,11 +3,11 @@ defmodule Day17Test do
   doctest Day17
 
   test "part one, example" do
-    assert Day17.part1(example1()) == 0
+    assert Day17.part1(example1()) == 57
   end
 
   test "part one, real data" do
-    #assert Day17.part1(input()) == 0
+    assert Day17.part1(input()) == :blurf
   end
 
   test "part two example" do

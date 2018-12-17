@@ -4,7 +4,6 @@ defmodule Day17 do
     state = build_state ranges
     {result, state} = fill_below(state, {0, 500})
     print_state state
-    IO.inspect result
     count_water_areas state
   end
 
@@ -20,20 +19,20 @@ defmodule Day17 do
       :outside ->
 	{:done, state}
       :blocked ->
-	:blocked
+	{:blocked, state}
       :free ->
-	state = fill state, pos, :flowing
-	case fill_below(state, pos) do
-	  :blocked ->
-	    case fill_horizontal(state, pos, -1, :flowing) do
+	state = fill state, below, :flowing
+	case fill_below(state, below) do
+	  {:blocked, state} ->
+	    case fill_horizontal(state, below, -1, :flowing) do
 	      {:done, state} ->
-		fill_horizontal(state, pos, 1, :flowing)
+		fill_horizontal(state, below, 1, :flowing)
 	      {:blocked, state} ->
-		case fill_horizontal(state, pos, 1, :flowing) do
+		case fill_horizontal(state, below, 1, :flowing) do
 		  {:blocked, state} ->
 		    state = fill state, {row, col}, :settled;
-		    {:blocked, state} = fill_horizontal(state, pos, -1, :settled)
-		    {:blocked, state} = fill_horizontal(state, pos, 1, :settled)
+		    {:blocked, state} = fill_horizontal(state, below, -1, :settled)
+		    {:blocked, state} = fill_horizontal(state, below, 1, :settled)
 		    {:blocked, state}
 		  {:done, state} ->
 		    {:done, state}
@@ -52,7 +51,12 @@ defmodule Day17 do
 	{:done, state}
       :free ->
 	state = fill state, pos, elem
-	fill_horizontal state, pos, direction, elem
+	case at(state, {row + 1, col + direction}) do
+	  :blocked ->
+	    fill_horizontal state, pos, direction, elem
+	  _ ->
+	    fill_below state, pos
+	end
       :blocked ->
 	{:blocked, state}
     end
