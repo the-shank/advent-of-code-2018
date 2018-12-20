@@ -2,7 +2,39 @@ defmodule Day20 do
   def part1 regex do
     directions = parse_regex regex
     {graph, _} = build_graph directions, {0, 0}, MapSet.new()
+    {MapSet.new([{0, 0}]), [{0, 0}]}
+    |> Stream.iterate(fn {visited, paths} -> expand_paths(visited, paths, graph) end)
+    |> Stream.map(fn {_visited, paths} -> paths end)
+    |> Stream.with_index(1)
+    |> Enum.find(fn
+      {[], index} ->
+	index
+      {[_ | _], _index} ->
+	nil
+    end)
+    |> (fn {[], path_length} -> path_length end).()
   end
+
+  defp expand_paths visited, paths, graph do
+    Enum.reduce(paths, {visited, []},
+      fn path, {visited, paths} ->
+	case next_path_positions(graph, visited, path) do
+	  [] ->
+	    {visited, paths}
+	  next_path_positions ->
+	    visited = MapSet.union(visited, MapSet.new(next_path_positions));
+	    {visited, next_path_positions ++ paths}
+	end
+      end)
+  end
+
+  defp next_path_positions graph, visited, position do
+    adjacent_positions(position)
+    |> Enum.reject(&MapSet.member?(visited, &1))
+    |> Enum.filter(fn adjacent -> MapSet.member?(graph, {position, adjacent}) end)
+  end
+
+  defp adjacent_positions({x, y}), do: [{y - 1, x}, {y, x - 1}, {y, x + 1}, {y + 1, x}]
 
   defp build_graph [[_ | _] = alt_dirs | directions], pos, acc do
     Enum.reduce(alt_dirs, {acc, pos}, fn alt_dir, {acc, _} ->
