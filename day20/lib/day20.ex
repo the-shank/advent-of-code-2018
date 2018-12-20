@@ -1,18 +1,6 @@
 defmodule Day20 do
-  @moduledoc """
-  Documentation for Day20.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Day20.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def part1 re do
+    {:ok, re} = Regex.compile re
+    Regex.match? re, "ENWWWNEEE"
   end
 end
