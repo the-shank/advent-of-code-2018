@@ -1,6 +1,6 @@
 defmodule Day20 do
   def part1 regex do
-    parse_regex regex
+    directions = parse_regex regex
   end
 
   defp parse_regex <<"^", rest::binary>> do

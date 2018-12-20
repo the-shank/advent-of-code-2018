@@ -11,15 +11,11 @@ defmodule Day20Test do
   end
 
   test "part one, real data" do
-    #assert Day20.part1(input()) == {937, 628, 588436}
+    assert Day20.part1(input()) == 0
   end
 
   test "part two real data" do
     #assert Day20.part2(input()) == {590, 331, 195290}
-  end
-
-  defp example1() do
-    "^ENWWW(NEEE|SSE(EE|N))$"
   end
 
   defp input do
