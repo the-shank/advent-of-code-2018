@@ -5,7 +5,7 @@ defmodule Day20 do
     {MapSet.new([{0, 0}]), [{0, 0}]}
     |> Stream.iterate(fn {visited, paths} -> expand_paths(visited, paths, graph) end)
     |> Stream.map(fn {_visited, paths} -> paths end)
-    |> Stream.with_index(1)
+    |> Stream.with_index(-1)
     |> Enum.find(fn
       {[], index} ->
 	index
@@ -34,7 +34,7 @@ defmodule Day20 do
     |> Enum.filter(fn adjacent -> MapSet.member?(graph, {position, adjacent}) end)
   end
 
-  defp adjacent_positions({x, y}), do: [{y - 1, x}, {y, x - 1}, {y, x + 1}, {y + 1, x}]
+  defp adjacent_positions({x, y}), do: [{x, y + 1}, {x, y - 1}, {x - 1, y}, {x + 1, y}]
 
   defp build_graph [[_ | _] = alt_dirs | directions], pos, acc do
     Enum.reduce(alt_dirs, {acc, pos}, fn alt_dir, {acc, _} ->
